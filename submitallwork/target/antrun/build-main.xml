@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="main"  >
+<target name="main">
+  <echo>-------开始复制jar包到共享目录下--------</echo>
+  <delete file="D:\Users\futanghang004\Desktop\automatic\submitallwork-1.0-SNAPSHOT-jar-with-dependencies.jar"/>
+  <copy file="target\submitallwork-1.0-SNAPSHOT-jar-with-dependencies.jar" toDir="D:\Users\futanghang004\Desktop\automatic\"/>
+</target>
+</project>

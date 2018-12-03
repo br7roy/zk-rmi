@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 设置log4j2的自身log级别为warn -->
+<!-- OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<configuration status="WARN" monitorInterval="30">
+    <properties>
+        <!-- 1. 生产日志配置 -->
+        <!-- 日志目录 -->
+        <property name="LOG_HOME">/root/app/logs/misc</property>
+        <!-- 日志(完整)文件名 -->
+        <property name="PRO_FILE_NAME">misc.log</property>
+        <!-- 生产日志级别 debug/info-->
+        <property name="PRO_LEVEL">info</property>
+        <!-- 2. 运维日志(error日志) -->
+        <!-- 运维日志文件名 -->
+        <property name="PRO_ERROR_FILE_NAME">misc_error.log</property>
+        <!-- 2. 日志分包备份配置 -->
+        <!-- 日志备份目录 -->
+        <property name="BACKUP_HOME">${LOG_HOME}/backups/misc</property>
+        <!-- 单个备份文件大小 -->
+        <property name="BACKUP_FILE_SIZE">10 MB</property>
+        <!-- 备份文件最大个数 -->
+        <property name="BACKUP_FILE_MAX">100</property>
+        <!-- 3. 开发模式日志配置 (生产环境必须关闭) -->
+        <!-- 文件名称 -->
+        <property name="DEV_FILE_NAME">misc_dev.log</property>
+    </properties>
+
+    <appenders>
+        <!-- 控制台输出 -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+            <ThresholdFilter level="${PRO_LEVEL}" onMatch="ACCEPT" onMismatch="DENY" />
+        </Console>
+
+        <!-- 开发调试 -->
+        <File name="develop" fileName="${LOG_HOME}/${DEV_FILE_NAME}" append="false">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+            <ThresholdFilter level="${PRO_LEVEL}" onMatch="ACCEPT" onMismatch="DENY" />
+        </File>
+
+        <!-- 生产日志(完整) -->
+        <RollingRandomAccessFile name="product"
+                                 fileName="${LOG_HOME}/${PRO_FILE_NAME}"
+                                 filePattern="${BACKUP_HOME}/$${date:yyyy-MM}/${PRO_FILE_NAME}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout
+                    pattern="%date{yyyy-MM-dd HH:mm:ss.SSS} %level [%thread][%file:%line] - %msg%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="${BACKUP_FILE_SIZE}" />
+            </Policies>
+            <DefaultRolloverStrategy max="${BACKUP_FILE_MAX}" />
+            <ThresholdFilter level="${PRO_LEVEL}" onMatch="ACCEPT" onMismatch="DENY" />
+        </RollingRandomAccessFile>
+
+
+
+
+
+
+
+
+
+
+
+
+    </appenders>
+
+    <loggers>
+
+        <logger name="org.apache.commons.beanutils" level="info"
+                additivity="false">
+            <appender-ref ref="console" />
+            <appender-ref ref="develop" />	<!-- 仅用于本地开发 生产环境必须关闭 -->
+            <appender-ref ref="product" />
+        </logger>
+
+
+        <logger name="org.quartz.core" level="error" additivity="false">
+            <appender-ref ref="console" />
+            <appender-ref ref="develop" />	<!-- 仅用于本地开发 生产环境必须关闭 -->
+            <appender-ref ref="product" />
+        </logger>
+        <root level="info" includeLocation="true">
+            <appender-ref ref="console" />
+            <appender-ref ref="develop" />	<!-- 仅用于本地开发 生产环境必须关闭 -->
+            <appender-ref ref="product" />
+        </root>
+    </loggers>
+
+</configuration>
