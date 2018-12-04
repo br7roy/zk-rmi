@@ -104,6 +104,13 @@
       <version>3.4.10</version>
     </dependency>
 
+
+    <dependency>
+      <groupId>com.rust</groupId>
+      <artifactId>zkcli</artifactId>
+      <version>1.0-RELEASE</version>
+    </dependency>
+
 <!--    <dependency>
       <groupId>com.pinganfu.scheduler</groupId>
       <artifactId>pafu-job-core</artifactId>

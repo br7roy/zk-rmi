@@ -15,6 +15,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * @author Rust
  */
 public class ThreadUtil {
+	private ThreadUtil() {
+	}
 
 	private static List<ExecutorService> es = new ArrayList<>();
 	private static List<ScheduledExecutorService> ses = new ArrayList<>();

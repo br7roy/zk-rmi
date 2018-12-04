@@ -11,6 +11,7 @@
  import javax.management.remote.JMXConnectorServer;
  import javax.management.remote.JMXConnectorServerFactory;
  import javax.management.remote.JMXServiceURL;
+ import lombok.extern.slf4j.Slf4j;
 
  import java.io.IOException;
  import java.lang.management.ManagementFactory;
@@ -26,6 +27,7 @@
   * Date:        2018/8/3
   * Description:
   */
+ @Slf4j
  public class JmxServer {
 
 	 private final int rmiRegistryPort;
@@ -45,18 +47,21 @@
 	 private Registry registry;
 
 
-	 public JmxServer(int rmiRegistryPort, String rmiRegistryName, int rmiPort, Map<String, Object> mbMap) {
+	 public JmxServer(int rmiRegistryPort, String rmiRegistryName, int rmiPort
+			 , Map<String, Object> mbMap) {
 		 this(rmiRegistryPort, rmiRegistryName, rmiPort, null, mbMap);
 	 }
 
-	 public JmxServer(int rmiRegistryPort, String rmiRegistryName, int rmiPort, Map<String, Object> env, Map<String, Object> mbMap) {
+	 public JmxServer(int rmiRegistryPort, String rmiRegistryName, int rmiPort
+			 , Map<String, Object> env, Map<String, Object> mbMap) {
 		 this.rmiRegistryPort = rmiRegistryPort;
 		 this.rmiRegistryName = rmiRegistryName;
 		 this.rmiPort = rmiPort;
 		 this.env = env;
 		 this.mbName = mbMap;
-		 jmxServiceUrl = "service:jmx:rmi://localhost:" + this.rmiPort + "/jndi/rmi://localhost:" + this.rmiRegistryPort + "/" + this.rmiRegistryName;
-		 System.out.println("JmxServer.JmxServer.url="+jmxServiceUrl);
+		 jmxServiceUrl = "service:jmx:rmi://localhost:" + this.rmiPort +
+				 "/jndi/rmi://localhost:" + this.rmiRegistryPort + "/" + this.rmiRegistryName;
+		 log.info("JmxServer.JmxServer.url=" + jmxServiceUrl);
 
 	 }
 
@@ -77,15 +82,16 @@
 
 			 JMXServiceURL jmxServiceURL = new JMXServiceURL(jmxServiceUrl);
 
-			 jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, this.env, mbs);
+			 jmxConnectorServer =
+					 JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, this.env, mbs);
 
 			 jmxConnectorServer.start();
 
-			 System.out.println("start JmxServer is ok.");
+			 log.info("start JmxServer is ok.");
 
 			 return true;
 		 } catch (Exception e) {
-			 System.err.println("fail to start JmxServer." + e);
+			 log.info("fail to start JmxServer." + e);
 		 }
 		 return false;
 	 }

@@ -1,9 +1,3 @@
- /*
-  * Package com.rust.zkha.consumer
-  * FileName: ServiceConsumer
-  * Author:   Takho
-  * Date:     18/11/30 1:16
-  */
  package com.rust.zkcli;
 
  import java.io.IOException;

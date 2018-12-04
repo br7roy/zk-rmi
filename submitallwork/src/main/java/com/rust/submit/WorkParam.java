@@ -30,6 +30,7 @@ public class WorkParam {
 
 		BasicNameValuePair bnv = new BasicNameValuePair("utf8", "");
 		list.add(bnv);
+		// String token = WorkSupport.touchToken();
 		bnv = new BasicNameValuePair("authenticity_token",
 				"mWSqJxFxMvoQ7KbnFlId5Z1B5dFX9rJ3fiZhrSosqRKremQuoceR2KlhsbuX2bsJlBOVbaknFV2b0Lh+4itoBQ==");
 		list.add(bnv);

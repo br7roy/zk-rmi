@@ -35,6 +35,8 @@ public class LoginParam {
 		list.add(bnv);
 		bnv = new BasicNameValuePair("login", builder.login);
 		list.add(bnv);
+		bnv = new BasicNameValuePair("autologin", builder.autologin);
+		list.add(bnv);
 	}
 	public static LoginParamBuilder newBuilder() {
 		return new LoginParamBuilder();
@@ -47,7 +49,7 @@ public class LoginParam {
 	public static class LoginParamBuilder {
 		private String username;//
 		private String password;//
-		// private String autologin;
+		private String autologin;
 		private String authenticity_token;
 		private String back_url;
 		private String utf8;
@@ -62,14 +64,19 @@ public class LoginParam {
 			this.password = password;
 			return this;
 		}
+		public LoginParamBuilder addToken(String token) {
+			this.authenticity_token = token;
+			return this;
+		}
 
 
 		public LoginParam build() {
 			// autologin = StringUtils.defaultIfBlank(autologin, "1");
-			authenticity_token = "PWFsGMP65zUnUMvQTWvP6FqKehfIdfTAfa2whcDhnNbzzLClogoUS/vNZN59o4w5E8C7R1sYzGmtmXhMvxhyVA==";
-			back_url = "http://badao.pinganfu.net/login?back_url=http://badao.pinganfu.net/";
+			// authenticity_token = "PWFsGMP65zUnUMvQTWvP6FqKehfIdfTAfa2whcDhnNbzzLClogoUS/vNZN59o4w5E8C7R1sYzGmtmXhMvxhyVA==";
+			back_url = "http://badao.pinganfu.net/";
 			utf8 = "✓";
 			login = "登录 »";
+			autologin = "1";
 			return new LoginParam(this);
 		}
 	}

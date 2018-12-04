@@ -24,6 +24,9 @@ public class WorkContext {
 	private boolean anyScheduleWorkError;
 	private ServiceTypeEnm serviceTypeEnm;
 	private transient String cookie;
+	private String account;
+	private String pwd;
+
 
 
 	public WorkContext(long firstScheduleStartupTime, String[] params,
@@ -50,6 +53,14 @@ public class WorkContext {
 
 	public void setServiceTypeEnm(ServiceTypeEnm serviceTypeEnm) {
 		this.serviceTypeEnm = serviceTypeEnm;
+	}
+
+	public String getCookie() {
+		return cookie;
+	}
+
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
 	}
 
 	public long getFirstScheduleStartupTime() {

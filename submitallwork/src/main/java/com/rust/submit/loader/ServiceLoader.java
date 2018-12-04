@@ -2,14 +2,12 @@ package com.rust.submit.loader;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Scanner;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
@@ -34,13 +32,14 @@ import com.rust.submit.support.WorkSupport;
 import com.rust.submit.util.DateUtil;
 
 import static com.rust.submit.Constants.SPLIT_LIMIT_HOURS;
+import static com.rust.submit.Constants.VIP_COOKIE;
 import static com.rust.submit.util.ComputeUtil.minus;
 
 /**
  * @author Rust
  */
 @Slf4j
-public class ServiceLoader implements AppLoader<String[], WorkContext> {
+public class ServiceLoader implements AppLoader<Object[], WorkContext> {
 
 
 	private static final String URI = "http://badao.pinganfu.net/time_entries";
@@ -56,23 +55,13 @@ public class ServiceLoader implements AppLoader<String[], WorkContext> {
 	}
 
 
-	public WorkContext doWork(String[] args) throws Exception {
+	public WorkContext doWork(Object[] args) throws Exception {
 		WorkContext workContext = null;
 			// demand current hour
-			System.out.println("输入问题ID");
-			Scanner scanner = new Scanner(new BufferedInputStream(System.in));
-			String id = scanner.next();
-			System.out.println("输入日期");
-			String time = scanner.next();
-			String[] param = new String[]{id, time};
-		System.out.println("输入用户名");
-		String account = scanner.next();
-		System.out.println("输入密码");
-		String password = scanner.next();
-		String cookie = WorkSupport.fetchUserInfo(account, password);
-			workContext = new WorkContext(System.currentTimeMillis(),
-					param, ServiceTypeEnm.SINGLE,cookie);
-			workContext.setSingleSubmitRet(runningWithTrigger(workContext));
+		String cookie =	WorkSupport.doLogin((String) args[1], (String) args[2]);
+			workContext = new WorkContext(System.currentTimeMillis(), (String[]) args[0], ServiceTypeEnm.SINGLE,cookie);
+		workContext.setCookie(cookie);
+		workContext.setSingleSubmitRet(runningWithTrigger(workContext));
 		return workContext;
 	}
 
@@ -83,7 +72,7 @@ public class ServiceLoader implements AppLoader<String[], WorkContext> {
 				SingleSubmitParam trueArgs =
 						WorkSupport.resolvingHourParamByContext(context,
 								aFloat);
-				submit(trueArgs);
+				submit(trueArgs,context);
 			}
 		} catch (Exception e) {
 			log.error("work running fail" + e);
@@ -121,9 +110,8 @@ public class ServiceLoader implements AppLoader<String[], WorkContext> {
 				Consts.UTF_8));
 
 		HttpGet realRequest = new HttpGet(URI + "?" + tempStr);
-		realRequest.addHeader("Cookie", "autologin=09d7c2e22e061cc160ff4c6b3e257611c27459f5; sidebar_hide=hide; " +
-				"_redmine_session" +
-				"=UVFDNkZhTnBEZGZUWlFjeEZPVHlrbDJPc0dlQ25vTjA1WVhhWHpXZEcwY3EwbEJ2TGVubjVVbUlUd2xYYzA3TEwySUlsN3pQKzRDMVZ3Q1pzeVFnSmxDZ3ZkYnNhaFFKb3ZoNDFSamFaMHd2WW5nNUJCSHBBZS9JOGVYdTQ0VGowYWk3b0ZzbUNMN2dQNXJHSHJhQ2JGVHRlTE5EdDNHSXJHZ2ZEVHVIbmdieFZkYm05dkdHRmJWMEpGQU1UQUd6YjFONnMvYmdKaTN0bDJ6ZUxiUGJKcWQ5dGxLanNJVTlaWnVmc0xWTFltUGpWVXJVdVRJYVJYT2gwam1IeDBwNjZiRjJ0VXdWemhmdEt3aWIwTGZhYm0weWdEMU5VMUNZSDVkdEdNWjMvUzZVL01CaExYK0xVRERORG9hQzVNQkQ3RXFhOXQ4SG1GNVNLc1Y1K2JKa3Z4cnNZTTZESzZOQ2JvOG9WRVNva1JnVjBWRmVjUW4wcmhpb3pQeVUrTFVwTVdkM0Q4YjlnNThLaG83WFF3djQ5cG94Zm0rZVBlakpiUWJHa09oV2hZZmZMYUV3UGtEdDZPcHlmYW1JZndSNTJtaENYWkR0d0NsUkt4cEtQVkRrNlpvMVI0Si9IeUVQTmhWaStadXMybTdwcWFKcktrVlhLWnlNMzNFSjdxR0dYdy9pazBGSWxlcE9XVzJwbS9DUlp3c3oyUlc3VWI0eXdTR3Jwd0ZBaWlzUVEwanNYZnJZZ2xCS216NXZqWXVyOUxDZjZrcFZWdTlFQzF6RjJkWS9SQT09LS1zbTQ1QjlqMnhUMXNuOUxZenVCdm9RPT0%3D--d5f6e2c06f5b5a11c6c1f594e671e5609555facd");
+		String cookie = context.getCookie();
+		realRequest.addHeader("Cookie", cookie);
 		realRequest.setHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpResponse response = httpClient.execute(realRequest);
@@ -189,12 +177,11 @@ public class ServiceLoader implements AppLoader<String[], WorkContext> {
 		return floats;
 	}
 
-	public void submit(SingleSubmitParam args) throws IOException {
+	public void submit(SingleSubmitParam args,WorkContext workContext) throws IOException {
 		WorkParam param = WorkSupport.buildSubmitWorkParam(args);
 		HttpPost httpPost = new HttpPost(URI);
-		httpPost.addHeader("Cookie", "autologin=09d7c2e22e061cc160ff4c6b3e257611c27459f5; " + "_redmine_session"
-				+
-				"=MXdSbDRUVG54MTVsVEc5Zy9vOEV5WmQxSy9MclpVUjQ3dDgyb2QvSlowYUpDYjlIbGhPNjdzUno0Y2cvWVg5UVFpbmpyZ1pyZVdjREZsYTN6NzdEeXBQOGg5dHJXS3h4ZUJSNFVvaFBnQjdab201Q3pEbmE4Tm9KNnhwbk8vdlJtNUx5dEhjcUZJLzZLRGhtb21nZ0JOZnAvOXJER3kyaFNPMUovRVZxOTdYMFBpUnpCdlZQMWJzR2hRZDFwVVQyVkQwcjZ5T1VCSWh4NFZaZkIwaCtDQjJlRUVLSlFoUDl1T1dWcWQxRG0vOHJHMExLcDhVbTdUVnFZRW1DeUtVeVZ6VnNVV0RaNk5VZmJaRUkrUEF0NmxPME5ZUDFWWUR6MFNLNzk5RlV5eDlnUUxzbHg1cnRHMWJtYmwvZGExdVJGem81dEc3T1ZXRXhIZlY4SUE2UkhnUHdzZG1ZcSswRVB6YkRWRW9MUHdnT1AwNzV0UFlsZTVoalM3ZkYxVXNNenV0dGFqVDloM2Yrd1Y5dUdNd3VzS3Qvam4rd0lrNGcxNE0xdlE5NjlYSDdqckFaSFRKU1BFaUx6djhRakVOeWRNUkpmN1FlYXI0WnYxZlg4TWhFTG5HanhNRUVEZ05lazA1WjN0aExYQlY4QmJXb2dPSytYVWltaVEzbWl4Nys3YlFSUmtjc09UU2FRVG9Fb1dLZU5BPT0tLXNmeHJOZjc0aGxhMnptdi9TQ3Vla3c9PQ%3D%3D--5d9e234049412526bb821daa34bf1e62c33fb240");
+		String cookie = workContext.getCookie();
+		httpPost.addHeader("Cookie", VIP_COOKIE);
 
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 

@@ -1,12 +1,10 @@
 
-package com.rust.ws.service.wsimport;
+package com.rust.ws.service.submit;
 
 import javax.xml.namespace.*;
 import javax.xml.ws.*;
 
 import java.net.*;
-
-import com.rust.ws.service.submit.SubmitServiceImpl;
 
 
 /**
@@ -66,8 +64,8 @@ public class SubmitServiceImplService
      *     returns SubmitServiceImpl
      */
     @WebEndpoint(name = "SubmitServiceImplPort")
-    public com.rust.ws.service.submit.SubmitServiceImpl getSubmitServiceImplPort() {
-        return super.getPort(new QName("http://submit.service.ws.rust.com/", "SubmitServiceImplPort"), com.rust.ws.service.submit.SubmitServiceImpl.class);
+    public SubmitServiceImpl getSubmitServiceImplPort() {
+        return super.getPort(new QName("http://submit.service.ws.rust.com/", "SubmitServiceImplPort"), SubmitServiceImpl.class);
     }
 
     /**
@@ -78,7 +76,7 @@ public class SubmitServiceImplService
      *     returns SubmitServiceImpl
      */
     @WebEndpoint(name = "SubmitServiceImplPort")
-    public com.rust.ws.service.submit.SubmitServiceImpl getSubmitServiceImplPort(WebServiceFeature... features) {
+    public SubmitServiceImpl getSubmitServiceImplPort(WebServiceFeature... features) {
         return super.getPort(new QName("http://submit.service.ws.rust.com/", "SubmitServiceImplPort"), SubmitServiceImpl.class, features);
     }
 

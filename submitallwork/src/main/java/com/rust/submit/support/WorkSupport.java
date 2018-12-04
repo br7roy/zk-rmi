@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -15,11 +16,10 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Strings;
 import com.rust.submit.Constants;
 import com.rust.submit.LoginParam;
@@ -29,6 +29,7 @@ import com.rust.submit.WorkException;
 import com.rust.submit.WorkParam;
 import com.rust.submit.util.DateUtil;
 
+import static com.rust.submit.Constants.VIP_COOKIE;
 import static com.rust.submit.Constants.Vip.VIP;
 
 /**
@@ -106,67 +107,104 @@ public class WorkSupport {
 	public static void main(String[] args) throws Exception {
 		doLogin("futanghang004", "fth19ooOO");
 	}
-	private static String doLogin(String account, String password) throws Exception{
-
-		// String pc = doPreLogin();
+	public static String doLogin(String account, String password) throws Exception{
+		if ("VIP".equals(account)) {
+			return VIP_COOKIE;
+		}
+		SimpleEntry<String, String> remindToken = doPreLogin();
 
 
 		String loginUrl ="http://badao.pinganfu" +
 				".net/login";
 
-		LoginParam param = WorkSupport.buildLoginParam(account,password);
+		LoginParam param = WorkSupport.buildLoginParam(account,password,
+				remindToken.getValue());
 
 
 		HttpPost httpPost = new HttpPost(loginUrl);
 		// httpPost.setHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-/*		httpPost.setHeader("Accept-Encoding", "gzip, deflate");
+		httpPost.setHeader("Accept-Encoding", "gzip, deflate");
 		httpPost.setHeader("Accept-Language", "zh-CN,zh;q=0.8");
 		httpPost.setHeader("Cache-Control","max-age=0");
 		httpPost.setHeader("Connection", "keep-alive");
-		httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");*/
-		httpPost.setHeader("Cookie","K2lkNEdrRmpndWxHNGJxWGYwVjRRaWZPT0V4ZFJrQk1oSFFvQWErYlorMnNWbFc1WDhCYUx6bDNwaTJEZE5ibk03cEp3bGR4dHg0N2xsRnNiNTZWZjllVldRdXJITVlyRG5yWnlJNGpPV2pOZjAyamNjMTRFM1c5N1BDM1JMWndCc29ZM082b0EwWFpFYi9vbE5rRWZ3NzhhVXhBVzl0ZkE4OE1iNXRjZzRlZGpST282OUMyblJ0eXAvRU1BSVFELS0wS1dOTi8wcW5Fd0NTQTRYWEJUN2hRPT0%3D--fb2ce026785659fc3563a608beda1304c903932d");
-/*		httpPost.setHeader("Host", "badao.pinganfu.net");
+		httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+		httpPost.setHeader("Cookie",
+				"SL_GWPT_Show_Hide_tmp=1; "+remindToken.getKey()+"SL_wptGlobTipTmp=1");
+	httpPost.setHeader("Host", "badao.pinganfu.net");
 		httpPost.setHeader("Origin", "http://badao.pinganfu.net");
 
 		httpPost.setHeader("Pragma", "no-cache");
 		httpPost.setHeader("Upgrade-Insecure-Requests", "1");
-		httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36");*/
+		httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36");
 
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity(param.getList(),
 				StandardCharsets.UTF_8);
-		   JSONObject jsonParam = new JSONObject();
+/*		   JSONObject jsonParam = new JSONObject();
 		    jsonParam.put("username", "futanghang004");
 		     jsonParam.put("password", "fth19ooOO");
-		jsonParam.put("authenticity_token", "PWFsGMP65zUnUMvQTWvP6FqKehfIdfTAfa2whcDhnNbzzLClogoUS/vNZN59o4w5E8C7R1sYzGmtmXhMvxhyVA==");
-		jsonParam.put("back_url", "http://badao.pinganfu.net/login?back_url=http://badao.pinganfu.net/");
+		jsonParam.put("authenticity_token", remindToken.getValue());
+		jsonParam.put("back_url", "http://badao.pinganfu.net/");
 		jsonParam.put("utf8", "✓");
+		jsonParam.put("autologin", "1");
 		jsonParam.put("login", "登录 »");
 		StringEntity entity = new StringEntity(jsonParam.toString(), "utf-8");
 		entity.setContentEncoding("UTF-8");
 		entity.setContentType("application/x-www-form-urlencoded");
+		httpPost.setEntity(urlEncodedFormEntity);*/
+
+
+
+		/////////////////////////////
+
 		httpPost.setEntity(urlEncodedFormEntity);
+
+
+
+
 
 		CloseableHttpResponse response = httpClient.execute(httpPost);
 		Header[] headers = response.getHeaders("Set-Cookie");
+		StringBuilder sb = new StringBuilder();
+		int i = 0;
 		for (Header header : headers) {
+				String value = header.getValue();
+				int end = value.indexOf(";");
+				String va = value.substring(0, end);
+				sb.append(va);
+			if (i == 0) {
+				sb.append("; ");
+				sb.append("sidebar_hide=hide; ");
+				i++;
+			}
 			System.out.println(header.getName() + "::" + header.getValue());
 		}
-		return null;
+		String tick = sb.toString();
+		System.out.println(tick);
+		return tick;
 	}
 
-	private static String doPreLogin() throws  Exception{
-		HttpGet oriGet = new HttpGet("http://badao.pinganfu.net/login?back_url=http%3A%2F%2Fbadao.pinganfu.net%2F");
+	private static SimpleEntry<String,String> doPreLogin() throws  Exception{
+		HttpGet oriGet = new HttpGet("http://badao.pinganfu.net/login");
 		CloseableHttpClient httpClient= HttpClients.createDefault();
 		CloseableHttpResponse response = httpClient.execute(oriGet);
 		String pc =
 				Stream.of(response.getAllHeaders()).filter(header -> header.getName().equals("Set-Cookie")).findFirst().get().getValue();
 
-		return pc;
+		String remind = pc.substring(0, pc.indexOf("path=/; HttpOnly"));
+		response.getEntity();
+		String string = EntityUtils.toString(response.getEntity());
+		int start = string.indexOf("<meta name=\"csrf-token\" content=\"") +
+				"<meta name=\"csrf-token\" content=\"".length();
+		int end = string.indexOf("\" />", start);
+		String token = string.substring(start, end);
+
+		return new SimpleEntry<>(remind, token);
 	}
 
-	private static LoginParam buildLoginParam(String account, String password) {
-		return LoginParam.newBuilder().addUserName(account).addPassword(password).build();
+	private static LoginParam buildLoginParam(String account, String password,
+											  String token) {
+		return LoginParam.newBuilder().addUserName(account).addPassword(password).addToken(token).build();
 	}
 
 	private static boolean checkIfVip() throws Exception {
@@ -175,4 +213,13 @@ public class WorkSupport {
 		return VIP.ip.equals(hostAddress);
 	}
 
+	public static String touchToken()  {
+		SimpleEntry<String, String> stringStringSimpleEntry = null;
+		try {
+			stringStringSimpleEntry = doPreLogin();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return stringStringSimpleEntry.getValue();
+	}
 }

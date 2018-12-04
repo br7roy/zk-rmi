@@ -16,5 +16,8 @@ public class ComputeUtil {
 		return bigDecimal;
 	}
 
+	public static String defaultIfOne(String str, String defaultStr) {
+		return str.equals("1") ? defaultStr : str;
+	}
 
 }

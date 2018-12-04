@@ -2,7 +2,6 @@ package com.rust.submit.loader;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedInputStream;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -10,7 +9,6 @@ import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,7 +24,8 @@ import org.apache.http.impl.client.HttpClients;
 import com.rust.submit.Constants.CallerTypeEnum;
 import com.rust.submit.WorkContext;
 import com.rust.submit.WorkContext.LocalWorkRunner;
-import com.rust.submit.call.HttpCaller;
+import com.rust.submit.call.DefaultHttpCaller;
+import com.rust.submit.call.HttpCallback;
 import com.rust.submit.support.WorkSupport;
 import com.rust.submit.util.DateUtil;
 import com.rust.submit.util.ThreadUtil;
@@ -39,17 +38,12 @@ import static com.rust.submit.loader.ServiceLoader.ServiceTypeEnm.SCHEDULE;
  * @author Rust
  */
 @Slf4j
-public class TimerTaskLoader implements AppLoader<String[], WorkContext> {
+public class TimerTaskLoader implements AppLoader<Object[], WorkContext> {
 	private static TimerTaskLoader ONE = new TimerTaskLoader();
 	private AtomicInteger cnt = new AtomicInteger(0);
 	private WorkContext workContext;
 
 	private TimerTaskLoader() {
-	}
-
-	public static void main(String[] args) throws Exception {
-		// new TimerTaskLoader().doWork(null);
-		// new TimerTaskLoader().setup(null);
 	}
 
 	public static TimerTaskLoader getONE() {
@@ -61,11 +55,11 @@ public class TimerTaskLoader implements AppLoader<String[], WorkContext> {
 	}
 
 	@Override
-	public WorkContext doWork(String[] params) throws Exception {
+	public WorkContext doWork(Object[] params) throws Exception {
 		workContext = setup(params);
 		startAllSchedule();
 		startHeartBeat();
-		cleanup(params);
+		cleanup((String[]) params[0]);
 		return workContext;
 	}
 
@@ -76,16 +70,11 @@ public class TimerTaskLoader implements AppLoader<String[], WorkContext> {
 				"input params:" + Arrays.toString(params));
 	}
 
-	private WorkContext setup(String[] params) throws Exception {
+	private WorkContext setup(Object[]  params) throws Exception {
 		// setup first schedule time
 		// setup user cookie
-		Scanner scanner = new Scanner(new BufferedInputStream(System.in));
-		System.out.println("输入用户名");
-		String account = scanner.next();
-		System.out.println("输入密码");
-		String password = scanner.next();
-		String cookie = WorkSupport.fetchUserInfo(account,password);
-		return new WorkContext(SUBMIT_WORK.firstStartupTime().toInstant(ZoneOffset.of("+8")).toEpochMilli(), params, SUBMIT_WORK.firstStartupTime().toInstant(ZoneOffset.of("+8")).toEpochMilli(), SCHEDULE,cookie);
+		String cookie =	WorkSupport.doLogin((String) params[1], (String) params[2]);
+		return new WorkContext(SUBMIT_WORK.firstStartupTime().toInstant(ZoneOffset.of("+8")).toEpochMilli(), (String[]) params[0], SUBMIT_WORK.firstStartupTime().toInstant(ZoneOffset.of("+8")).toEpochMilli(), SCHEDULE,cookie);
 	}
 
 	private void startAllSchedule() {
@@ -149,11 +138,12 @@ public class TimerTaskLoader implements AppLoader<String[], WorkContext> {
 			}
 			log.info("starting... \r\n" + SUBMIT_WORK + ",current start time " + "at:" + formatNowDate);
 			try {
+
 				HttpGet httpGet =
-						HttpCaller.DEFAULT.getCallerByName(CallerTypeEnum.QUERY_ISS_LIST);
+						new DefaultHttpCaller(workContext.getCookie()).getCallerByName(CallerTypeEnum.QUERY_ISS_LIST);
 				CloseableHttpClient httpClient = HttpClients.createDefault();
 				HttpResponse response = httpClient.execute(httpGet);
-				Object o = HttpCaller.DEFAULT.parseResult(response,
+				Object o = HttpCallback.DEFAULT.parseResult(response,
 						CallerTypeEnum.QUERY_ISS_LIST);
 				workContext.setSingleSubmitList((List<String>) o);
 				ServiceLoader.getONE().runningWithTrigger(workContext);

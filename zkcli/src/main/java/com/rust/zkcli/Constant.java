@@ -1,9 +1,3 @@
- /*
-  * Package com.rust.zkha.util
-  * FileName: Constant
-  * Author:   Takho
-  * Date:     18/11/30 0:58
-  */
  package com.rust.zkcli;
 
  /**
