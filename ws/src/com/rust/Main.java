@@ -1,14 +1,20 @@
+
+
 package com.rust;
 
 
-import java.util.Scanner;
+import com.rust.ws.service.submit.Exception_Exception;
+import com.rust.ws.service.submit.ReqBean;
+import com.rust.ws.service.submit.RetBean;
+import com.rust.ws.service.submit.SubmitServiceImpl;
+import com.rust.ws.service.submit.SubmitServiceImplService;
 
-import com.rust.ws.service.submit.*;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) throws Exception_Exception {
-	// write your code here
+        // write your code here
         SubmitServiceImplService factory = new SubmitServiceImplService();
         SubmitServiceImpl submitServiceImplPort = factory.getSubmitServiceImplPort();
         Scanner scanner = new Scanner(System.in);
