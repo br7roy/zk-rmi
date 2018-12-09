@@ -1,3 +1,5 @@
+
+
 package com.rust;
 
 
@@ -12,16 +14,16 @@ public class Main {
         SubmitServiceImplService factory = new SubmitServiceImplService();
         SubmitServiceImpl submitServiceImplPort = factory.getSubmitServiceImplPort();
         Scanner scanner = new Scanner(System.in);
-        System.out.println("è¾“å…¥ç±»å‹ï¼Œ1å®šæ—¶ï¼Œ2å•æ¬¡");
+        System.out.println("ÊäÈëÀàĞÍ£¬1¶¨Ê±£¬2µ¥´Î");
         String type = scanner.next();
-        System.out.println("è¾“å…¥id,å¦‚æœç±»å‹ä¸º2çš„è¯ï¼Œå¿…å¡«");
+        System.out.println("ÊäÈëid,Èç¹ûÀàĞÍÎª2µÄ»°£¬±ØÌî");
         String id = scanner.next();
-        System.out.println("è¾“å…¥æ—¶é—´ï¼Œyyyy-MM-dd");
+        System.out.println("ÊäÈëÊ±¼ä£¬yyyy-MM-dd");
         String time = scanner.next();
-        System.out.println("è¾“å…¥è´¦å·");
+        System.out.println("ÊäÈëÕËºÅ");
         String account = scanner.next();
-        // è¾“å…¥å¯†ç 
-        System.out.println("è¾“å…¥å¯†ç ");
+        // ÊäÈëÃÜÂë
+        System.out.println("ÊäÈëÃÜÂë");
         String pwd = scanner.next();
         ReqBean reqBean = new ReqBean();
         reqBean.setWorkType(type);
