@@ -164,9 +164,9 @@
             <configuration>
               <tasks>
                 <echo>-&#45;&#45;&#45;&#45;&#45;&#45;开始复制jar包到共享目录下&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;</echo>
-                <delete file="D:\Users\futanghang004\Desktop\automatic\submitallwork-1.0-SNAPSHOT-jar-with-dependencies.jar"/>
+                <delete file="\Desktop\automatic\submitallwork-1.0-SNAPSHOT-jar-with-dependencies.jar"/>
                 <copy file="target\submitallwork-1.0-SNAPSHOT-jar-with-dependencies.jar"
-                      toDir="D:\Users\futanghang004\Desktop\automatic\"/>
+                      toDir="\Desktop\automatic\"/>
               </tasks>
             </configuration>
           </execution>
